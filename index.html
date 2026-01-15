@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zen Den Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Zen Den Tracker</h1>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="checkin">Check In</button>
+            <button class="tab-btn" data-tab="current">
+                Currently Here
+                <span class="badge" id="currentCountBadge">0</span>
+            </button>
+            <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="history">History</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Check-In Tab -->
+            <section id="checkin-tab" class="tab-content active">
+                <div class="form-container">
+                    <h2>Student Check-In</h2>
+
+                    <!-- Success Message -->
+                    <div id="checkinSuccess" class="success-message hidden">
+                        <span class="success-icon">&#10003;</span>
+                        <span class="success-text">Student checked in successfully!</span>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="checkinError" class="error-message hidden"></div>
+
+                    <form id="checkinForm">
+                        <div class="form-group">
+                            <label for="studentName">Student Name</label>
+                            <input type="text" id="studentName" name="studentName" required
+                                   placeholder="Enter student's name" autocomplete="off">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gradeLevel">Grade</label>
+                                <select id="gradeLevel" name="gradeLevel" required>
+                                    <option value="">Select...</option>
+                                    <option value="K">Kindergarten</option>
+                                    <option value="1">1st Grade</option>
+                                    <option value="2">2nd Grade</option>
+                                    <option value="3">3rd Grade</option>
+                                    <option value="4">4th Grade</option>
+                                    <option value="5">5th Grade</option>
+                                    <option value="6">6th Grade</option>
+                                    <option value="7">7th Grade</option>
+                                    <option value="8">8th Grade</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="staffName">Staff Name</label>
+                                <input type="text" id="staffName" name="staffName" required
+                                       placeholder="Who brought the student?" list="recentStaff">
+                                <datalist id="recentStaff"></datalist>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="visitDate">Date</label>
+                                <div class="input-with-button">
+                                    <input type="date" id="visitDate" name="visitDate" required>
+                                    <button type="button" class="now-btn" id="setTodayBtn" title="Set to today">Today</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timeIn">Time In</label>
+                                <div class="input-with-button">
+                                    <input type="time" id="timeIn" name="timeIn" required>
+                                    <button type="button" class="now-btn" id="setNowBtn" title="Set to current time">Now</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reason">Reason for Visit</label>
+                            <textarea id="reason" name="reason" required
+                                      placeholder="Brief description of why the student is visiting..."
+                                      rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>How are you feeling?</label>
+                            <div class="emotion-buttons" id="emotionButtons">
+                                <button type="button" class="emotion-btn" data-emotion="Angry">
+                                    <span class="emotion-icon">&#128544;</span>
+                                    <span class="emotion-label">Angry</span>
+                                </button>
+                                <button type="button" class="emotion-btn" data-emotion="Sad">
+                                    <span class="emotion-icon">&#128546;</span>
+                                    <span class="emotion-label">Sad</span>
+                                </button>
+                                <button type="button" class="emotion-btn" data-emotion="Anxious/Worried">
+                                    <span class="emotion-icon">&#128552;</span>
+                                    <span class="emotion-label">Worried</span>
+                                </button>
+                                <button type="button" class="emotion-btn" data-emotion="Frustrated">
+                                    <span class="emotion-icon">&#128529;</span>
+                                    <span class="emotion-label">Frustrated</span>
+                                </button>
+                                <button type="button" class="emotion-btn" data-emotion="Overwhelmed">
+                                    <span class="emotion-icon">&#128565;</span>
+                                    <span class="emotion-label">Overwhelmed</span>
+                                </button>
+                                <button type="button" class="emotion-btn" data-emotion="Tired">
+                                    <span class="emotion-icon">&#128564;</span>
+                                    <span class="emotion-label">Tired</span>
+                                </button>
+                                <button type="button" class="emotion-btn" data-emotion="Other">
+                                    <span class="emotion-icon">&#128566;</span>
+                                    <span class="emotion-label">Other</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="selectedEmotion" name="emotion" required>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="checkinSubmitBtn">
+                            <span class="btn-text">Check In Student</span>
+                            <span class="btn-loading hidden">Saving...</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Currently Here Tab -->
+            <section id="current-tab" class="tab-content">
+                <div class="current-header">
+                    <h2>Currently in the Zen Den</h2>
+                    <button class="refresh-btn" id="refreshCurrentBtn" title="Refresh">
+                        &#8635; Refresh
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="currentLoading" class="loading-state hidden">
+                    Loading...
+                </div>
+
+                <!-- Error State -->
+                <div id="currentError" class="error-message hidden"></div>
+
+                <!-- Empty State -->
+                <div id="currentEmpty" class="empty-state hidden">
+                    <span class="empty-icon">&#127793;</span>
+                    <p>No students currently in the Zen Den</p>
+                    <p class="empty-subtitle">All is calm!</p>
+                </div>
+
+                <!-- Student Cards Grid -->
+                <div id="currentStudentsGrid" class="students-grid"></div>
+            </section>
+
+            <!-- Dashboard Tab -->
+            <section id="dashboard-tab" class="tab-content">
+                <h2>Dashboard</h2>
+
+                <!-- Date Range Filter -->
+                <div class="dashboard-filter">
+                    <div class="filter-group">
+                        <label for="dashboardStartDate">From:</label>
+                        <input type="date" id="dashboardStartDate">
+                    </div>
+                    <div class="filter-group">
+                        <label for="dashboardEndDate">To:</label>
+                        <input type="date" id="dashboardEndDate">
+                    </div>
+                    <button class="filter-btn" id="applyDashboardFilter">Apply Filter</button>
+                    <button class="filter-btn secondary" id="clearDashboardFilter">Clear</button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="dashboardLoading" class="loading-state hidden">
+                    Loading dashboard data...
+                </div>
+
+                <!-- Error State -->
+                <div id="dashboardError" class="error-message hidden"></div>
+
+                <!-- Summary Stats -->
+                <div class="stats-row" id="summaryStats">
+                    <div class="stat-card">
+                        <span class="stat-value" id="statToday">-</span>
+                        <span class="stat-label">Today</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="statWeek">-</span>
+                        <span class="stat-label">This Week</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="statMonth">-</span>
+                        <span class="stat-label">This Month</span>
+                    </div>
+                </div>
+
+                <!-- Breakdowns -->
+                <div class="dashboard-grid">
+                    <!-- Grade Breakdown -->
+                    <div class="dashboard-card">
+                        <h3>Visits by Grade</h3>
+                        <div id="gradeBreakdown" class="breakdown-chart"></div>
+                    </div>
+
+                    <!-- Emotion Breakdown -->
+                    <div class="dashboard-card">
+                        <h3>Visits by Emotion</h3>
+                        <div id="emotionBreakdown" class="breakdown-chart"></div>
+                    </div>
+
+                    <!-- Time of Day -->
+                    <div class="dashboard-card">
+                        <h3>Time of Day</h3>
+                        <div id="timeBreakdown" class="breakdown-chart"></div>
+                    </div>
+
+                    <!-- Frequent Visitors -->
+                    <div class="dashboard-card wide">
+                        <h3>Frequent Visitors <span class="card-subtitle">(3+ visits in past 30 days)</span></h3>
+                        <div id="frequentVisitors" class="frequent-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section id="history-tab" class="tab-content">
+                <div class="history-header">
+                    <h2>Visit History</h2>
+                    <button class="export-btn" id="exportCsvBtn">
+                        &#128190; Export CSV
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="history-filters">
+                    <div class="filter-group">
+                        <label for="historyStartDate">From:</label>
+                        <input type="date" id="historyStartDate">
+                    </div>
+                    <div class="filter-group">
+                        <label for="historyEndDate">To:</label>
+                        <input type="date" id="historyEndDate">
+                    </div>
+                    <div class="filter-group">
+                        <label for="historyGrade">Grade:</label>
+                        <select id="historyGrade">
+                            <option value="all">All Grades</option>
+                            <option value="K">Kindergarten</option>
+                            <option value="1">1st Grade</option>
+                            <option value="2">2nd Grade</option>
+                            <option value="3">3rd Grade</option>
+                            <option value="4">4th Grade</option>
+                            <option value="5">5th Grade</option>
+                            <option value="6">6th Grade</option>
+                            <option value="7">7th Grade</option>
+                            <option value="8">8th Grade</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="historyEmotion">Emotion:</label>
+                        <select id="historyEmotion">
+                            <option value="all">All Emotions</option>
+                            <option value="Angry">Angry</option>
+                            <option value="Sad">Sad</option>
+                            <option value="Anxious/Worried">Anxious/Worried</option>
+                            <option value="Frustrated">Frustrated</option>
+                            <option value="Overwhelmed">Overwhelmed</option>
+                            <option value="Tired">Tired</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="filter-group search-group">
+                        <label for="historySearch">Search:</label>
+                        <input type="text" id="historySearch" placeholder="Student name...">
+                    </div>
+                    <button class="filter-btn" id="applyHistoryFilter">Search</button>
+                    <button class="filter-btn secondary" id="clearHistoryFilter">Clear</button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="historyLoading" class="loading-state hidden">
+                    Loading visit history...
+                </div>
+
+                <!-- Error State -->
+                <div id="historyError" class="error-message hidden"></div>
+
+                <!-- Results Count -->
+                <div id="historyResultsCount" class="results-count"></div>
+
+                <!-- History Table -->
+                <div class="table-container">
+                    <table class="history-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Student</th>
+                                <th>Grade</th>
+                                <th>Staff</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Duration</th>
+                                <th>Emotion</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="historyEmpty" class="empty-state hidden">
+                    <p>No visits found matching your filters.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Zen Den Tracker v1.0</p>
+        </footer>
+    </div>
+
+    <!-- Checkout Confirmation Modal -->
+    <div id="checkoutModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Check Out Student</h3>
+            <p>Are you sure you want to check out <strong id="checkoutStudentName"></strong>?</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="checkoutCancel">Cancel</button>
+                <button class="modal-btn confirm" id="checkoutConfirm">Check Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Error Banner -->
+    <div id="connectionError" class="connection-error hidden">
+        <p>Unable to connect to the database. Please check your configuration.</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
