@@ -12,6 +12,8 @@ let currentTab = 'checkin';
 let activeVisits = [];
 let durationUpdateInterval = null;
 let pendingCheckoutId = null;
+let isAdminUnlocked = false;
+const ADMIN_PASSWORD = 'coarsegold1234';
 
 // ============================================
 // Initialization
@@ -57,6 +59,19 @@ function setupTabNavigation() {
 }
 
 function switchTab(tabId) {
+    // Check if password is required for this tab
+    if ((tabId === 'dashboard' || tabId === 'history') && !isAdminUnlocked) {
+        const password = prompt('Enter password to access this section:');
+        if (password === ADMIN_PASSWORD) {
+            isAdminUnlocked = true;
+        } else if (password !== null) {
+            alert('Incorrect password.');
+            return;
+        } else {
+            return; // User cancelled
+        }
+    }
+
     // Update button states
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tabId);
